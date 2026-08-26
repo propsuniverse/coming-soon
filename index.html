@@ -344,7 +344,7 @@
         <div class="rule"></div>
         <div class="subtag">Sports Trading School</div>
         <div class="datatag"><b>A Data-Driven</b> Approach to Player Prop Markets</div>
-
+        <input type="email" id="emailInput" name="email" placeholder="you@email.com" required>
         <div class="status-line">The edge is <span class="accent">coming.</span></div>
         <p class="desc">We're building the platform to help you read the numbers, find real value, and stop betting on vibes. Get on the list — first access goes to the waitlist.</p>
 
@@ -379,21 +379,26 @@
   }
   candlesEl.innerHTML = bars + bars;
 
-  // Waitlist storage
+    // ---------- Waitlist: Formspree ----------
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mjybnwpw';
+
   const form = document.getElementById('waitlistForm');
   const emailInput = document.getElementById('emailInput');
   const msg = document.getElementById('msg');
   const countEl = document.getElementById('count');
   const submitBtn = document.getElementById('submitBtn');
 
-  async function refreshCount(){
-    try{
-      const result = await window.storage.get('waitlist-count', true);
-      const n = result ? parseInt(result.value, 10) : 0;
-      countEl.innerHTML = `<b>${n}</b> already on the waitlist`;
-    }catch(e){
-      countEl.textContent = 'Be the first on the waitlist';
-    }
+  function getLocalCount(){
+    return parseInt(localStorage.getItem('pu-waitlist-count') || '0', 10);
+  }
+  function setLocalCount(n){
+    localStorage.setItem('pu-waitlist-count', String(n));
+  }
+  function refreshCount(){
+    const n = getLocalCount();
+    countEl.innerHTML = n > 0
+      ? `<b>${n}</b> joining the waitlist`
+      : '— joining the waitlist';
   }
   refreshCount();
 
@@ -401,29 +406,41 @@
     e.preventDefault();
     const email = emailInput.value.trim();
     if(!email){ return; }
+
     submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
     msg.className = 'msg';
     msg.textContent = '';
+
     try{
-      const key = 'waitlist:' + email.toLowerCase();
-      await window.storage.set(key, JSON.stringify({ email, ts: Date.now() }), true);
+      const data = new FormData(form);
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
 
-      let current = 0;
-      try{
-        const result = await window.storage.get('waitlist-count', true);
-        current = result ? parseInt(result.value, 10) : 0;
-      }catch(e){ current = 0; }
-      await window.storage.set('waitlist-count', String(current + 1), true);
-
-      msg.classList.add('ok');
-      msg.textContent = "You're on the list. We'll be in touch.";
-      emailInput.value = '';
-      refreshCount();
-    }catch(err){
+      if (response.ok) {
+        setLocalCount(getLocalCount() + 1);
+        refreshCount();
+        form.reset();
+        form.style.display = 'none';
+        msg.classList.add('ok');
+        msg.textContent = "You're on the list — we'll be in touch.";
+      } else {
+        const payload = await response.json().catch(() => null);
+        const errText = payload && payload.errors && payload.errors.length
+          ? payload.errors.map(er => er.message).join(', ')
+          : 'Something went wrong. Please try again.';
+        msg.classList.add('err');
+        msg.textContent = errText;
+      }
+    } catch (err) {
       msg.classList.add('err');
-      msg.textContent = 'Something went wrong — try again.';
-    }finally{
+      msg.textContent = 'Something went wrong. Please try again.';
+    } finally {
       submitBtn.disabled = false;
+      submitBtn.textContent = 'Notify Me';
     }
   });
 </script>
