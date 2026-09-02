@@ -349,7 +349,7 @@
 
         <form id="waitlistForm">
           <input type="email" id="emailInput" name="email" placeholder="you@email.com" required>
-          <button type="submit" id="submitBtn">Notify Me</button>
+          <button type="submit" id="submitBtn">Get the Signal</button>
         </form>
         <div class="msg" id="msg"></div>
         <div class="count" id="count">— joining the waitlist</div>
@@ -425,7 +425,7 @@
         form.reset();
         form.style.display = 'none';
         msg.classList.add('ok');
-        msg.textContent = "You're on the list — we'll be in touch.";
+        msg.textContent = "You're In. Your seat in the Unvierse is saved.";
       } else {
         const payload = await response.json().catch(() => null);
         const errText = payload && payload.errors && payload.errors.length
