@@ -430,7 +430,7 @@
         const payload = await response.json().catch(() => null);
         const errText = payload && payload.errors && payload.errors.length
           ? payload.errors.map(er => er.message).join(', ')
-          : 'Something went wrong. Please try again.';
+          : 'Analysis interrupted. Please try again.';
         msg.classList.add('err');
         msg.textContent = errText;
       }
