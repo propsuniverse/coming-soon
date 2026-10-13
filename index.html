@@ -347,7 +347,7 @@
         <div class="status-line">The <span class="accent">numbers</span> tell the <span class="plain-white">story</span></div>
         <p class="desc">Built to turn player performance data into measurable signals, identify market patterns, and make data-driven decisions.</p>
 
-        <form id="waitlistForm">
+        <form id="waitlistForm" action="https://formspree.io/f/mjybnwpw" method="POST">
           <input type="email" id="emailInput" name="email" placeholder="you@email.com" required>
           <button type="submit" id="submitBtn">Get the Signal</button>
         </form>
@@ -384,22 +384,8 @@
   const form = document.getElementById('waitlistForm');
   const emailInput = document.getElementById('emailInput');
   const msg = document.getElementById('msg');
-  const countEl = document.getElementById('count');
   const submitBtn = document.getElementById('submitBtn');
-
-  function getLocalCount(){
-    return parseInt(localStorage.getItem('pu-waitlist-count') || '0', 10);
-  }
-  function setLocalCount(n){
-    localStorage.setItem('pu-waitlist-count', String(n));
-  }
-  function refreshCount(){
-    const n = getLocalCount();
-    countEl.innerHTML = n > 0
-      ? `<b>${n}</b> joining the waitlist`
-      : '— joining the waitlist';
-  }
-  refreshCount();
+  const submitLabel = submitBtn.textContent;
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -420,8 +406,6 @@
       });
 
       if (response.ok) {
-        setLocalCount(getLocalCount() + 1);
-        refreshCount();
         form.reset();
         form.style.display = 'none';
         msg.classList.add('ok');
@@ -439,7 +423,7 @@
       msg.textContent = 'Something went wrong. Please try again.';
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Notify Me';
+      submitBtn.textContent = submitLabel;
     }
   });
 </script>
