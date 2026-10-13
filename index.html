@@ -409,7 +409,7 @@
         form.reset();
         form.style.display = 'none';
         msg.classList.add('ok');
-        msg.textContent = "You're on the list — we'll be in touch.";
+        msg.textContent = "Signal Received!";
       } else {
         const payload = await response.json().catch(() => null);
         const errText = payload && payload.errors && payload.errors.length
